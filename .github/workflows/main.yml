@@ -19,8 +19,11 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Android SDK ornatish
-        uses: android-actions/setup-android@v3
+      - name: Android SDK tayyorlash
+        run: |
+          SDKM="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKM" --licenses > /dev/null || true
+          "$SDKM" "platforms;android-35" "build-tools;35.0.0" "platform-tools" > /dev/null
 
       - name: Gradle 8.9 ornatish
         uses: gradle/actions/setup-gradle@v4
@@ -46,3 +49,4 @@ jobs:
         with:
           name: Yordamchi-APK
           path: app/build/outputs/apk/debug/*.apk
+        
