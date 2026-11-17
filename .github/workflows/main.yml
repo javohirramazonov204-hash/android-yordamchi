@@ -1,0 +1,48 @@
+name: APK yigish
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kodni olish
+        uses: actions/checkout@v4
+
+      - name: JDK 17 ornatish
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Android SDK ornatish
+        uses: android-actions/setup-android@v3
+
+      - name: Gradle 8.9 ornatish
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.9
+
+      - name: Vosk ovoz modelini yuklash
+        run: |
+          MODEL_DIR=app/src/main/assets/model-uz
+          if [ ! -d "$MODEL_DIR/am" ]; then
+            curl -L --fail -o model.zip https://alphacephei.com/vosk/models/vosk-model-small-uz-0.22.zip
+            unzip -q model.zip
+            rm -rf "$MODEL_DIR"
+            mv vosk-model-small-uz-0.22 "$MODEL_DIR"
+            rm model.zip
+          fi
+
+      - name: Debug APK yigish
+        run: gradle assembleDebug --stacktrace
+
+      - name: APK ni yuklash
+        uses: actions/upload-artifact@v4
+        with:
+          name: Yordamchi-APK
+          path: app/build/outputs/apk/debug/*.apk
